@@ -17,16 +17,28 @@ print(f"Controller connected: {joystick.get_name()}")
 
 # Subroutine Section
 
-def subroutine01(joystick, md1, md2, md3, md4, speed=1.0, run_time=2.0):
+def subroutine01(joystick, md1, md2, md3, md4):
     if joystick.get_button(0):
+
+        # First Movement
         start_time = time.time()
-        while time.time() - start_time < run_time:
-            md1.setTargetVelocity(-speed)
-            md2.setTargetVelocity(-speed)
-            md3.setTargetVelocity(speed)
-            md4.setTargetVelocity(speed)
+        while time.time() - start_time < 1.5:
+            md1.setTargetVelocity(-3)
+            md2.setTargetVelocity(-3)
+            md3.setTargetVelocity(3)
+            md4.setTargetVelocity(3)
             time.sleep(0.02)
 
+        # Second Movement
+        start_time = time.time()
+        while time.time() - start_time < 1.5:
+            md1.setTargetVelocity(1)
+            md2.setTargetVelocity(1)
+            md3.setTargetVelocity(-1)
+            md4.setTargetVelocity(1)
+            time.sleep(0.02)
+
+        # Stop all movement
         md1.setTargetVelocity(0)
         md2.setTargetVelocity(0)
         md3.setTargetVelocity(0)
@@ -38,18 +50,18 @@ def subroutine01(joystick, md1, md2, md3, md4, speed=1.0, run_time=2.0):
 # Initialize CANdle on the USB bus (SPI bus not supported yet)
 candle = pc.attachCandle(pc.CANdleDatarate_E.CAN_DATARATE_1M, pc.busTypes_t.USB)
 
-md1 = pc.MD(355, candle)
-md2 = pc.MD(356, candle)
-md3 = pc.MD(354, candle)
+md1 = pc.MD(354, candle)
+md2 = pc.MD(355, candle)
+md3 = pc.MD(356, candle)
 md4 = pc.MD(357, candle)
 
 err1 = md1.init()
 err2 = md2.init()
 err3 = md3.init()
 err4 = md4.init()
-print(f"Motor 355 initialized with status: {err1}")
-print(f"Motor 356 initialized with status: {err2}")
-print(f"Motor 354 initialized with status: {err3}")
+print(f"Motor 354 initialized with status: {err1}")
+print(f"Motor 355 initialized with status: {err2}")
+print(f"Motor 356 initialized with status: {err3}")
 print(f"Motor 357 initialized with status: {err4}")
 
 # Main Code Loop
@@ -68,7 +80,7 @@ if err1 == pc.MD_Error_t.OK:
     md3.enable()
     md4.enable()
 
-    MAX_SPEED = 10.0
+    MAX_SPEED = 17.0
 
     # This loop is crucial as MD requires constant polling by any of its functions
     # in order to keep the motor alive.
