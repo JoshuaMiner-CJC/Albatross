@@ -1,0 +1,48 @@
+ # Scissor Lift + Pawl Protocol
+        raise_pressed = joystick.get_button(RIGHT_UPPER_TRIGGER)
+        lower_pressed = joystick.get_axis(RIGHT_TRIGGER) > 0.5
+        now = time.time()
+
+        lift = 0
+        winch_speed = 0
+
+        if lift_state == "IDLE":
+            if raise_pressed:
+                lift_state = "UNLOADING"
+                state_start = now
+            elif lower_pressed:
+                lift = LOWER_DIR * MAX_SPEED
+
+        elif lift_state == "UNLOADING":
+            lift = LOWER_DIR * UNLOAD_SPEED
+            if not raise_pressed:
+                lift_state = "IDLE"
+            elif now - state_start > UNLOAD_TIME:
+                lift_state = "RETRACTING"
+                state_start = now
+
+        elif lift_state == "RETRACTING":
+            lift = LOWER_DIR * UNLOAD_SPEED
+            winch_speed = PAWL_OUT * PAWL_SPEED
+            if not raise_pressed:
+                lift_state = "ENGAGING"
+                state_start = now
+            elif now - state_start > PAWL_TIME:
+                lift_state = "RAISING"
+
+        elif lift_state == "RAISING":
+            lift = -LOWER_DIR * RAISE_SPEED
+            if not raise_pressed:
+                lift_state = "ENGAGING"
+                state_start = now
+
+        elif lift_state == "ENGAGING":
+            winch_speed = -PAWL_OUT * PAWL_SPEED
+            if now - state_start > PAWL_TIME:
+                lift_state = "IDLE"
+
+        liftfr.setTargetVelocity(-lift)
+        liftbr.setTargetVelocity(-lift)
+        liftbl.setTargetVelocity(lift)
+        liftfl.setTargetVelocity(lift)
+        winch.setTargetVelocity(winch_speed)
